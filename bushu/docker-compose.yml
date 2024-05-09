@@ -1,0 +1,53 @@
+version: '3.7'
+services:
+  i2pd_leaseset:
+    image: chongrufan/i2pd_leaseset:v2
+    container_name: i2pd_leaseset
+    network_mode: "host"
+    volumes:
+      - /root/.i2pd:/root/.i2pd
+    tty: true
+    stdin_open: true
+    deploy:
+      mode: replicated
+      replicas: 1
+    privileged: true
+
+
+  zookeeper:
+    image: wurstmeister/zookeeper:latest
+    container_name: zookeeper
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_PORT: 2181
+      ZOO_SERVERS: server.1=zookeeper:2888:3888
+    networks:
+      kafka-network:
+        ipv4_address: 172.89.0.3
+
+  kafka:
+    image: wurstmeister/kafka:latest
+    container_name: kafka
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: 172.89.0.2
+      KAFKA_LISTENERS: PLAINTEXT://:9092
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_CREATE_TOPICS: "LeaseSets:1:1"
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_DELETE_TOPIC_ENABLE: "true"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      kafka-network:
+        ipv4_address: 172.89.0.2
+
+networks:
+  kafka-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.89.0.0/24
+          gateway: 172.89.0.1
