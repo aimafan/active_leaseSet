@@ -19,12 +19,13 @@ def action():
     mysql_db.connect()
     # 连接到kafka
     kafka_consumer = KafkaConsumerHandler(kafka_server, kafka_topic, mysql_db)
+    kafka_consumer.connect()
 
     # 执行消费程序，try
     try:
         kafka_consumer.consume()
     except Exception as e:
-        logger.error("遇到问题：" + e)
+        logger.error("遇到问题：" + str(e))
 
 
 if __name__ == "__main__":

@@ -2,7 +2,7 @@ import mysql.connector
 
 import datetime
 from active_leaseSet.myutils.logger import logger
-from lock import lock
+# from lock import lock
 
 
 class DarknetDB:
@@ -25,9 +25,8 @@ class DarknetDB:
                 connection_timeout=300,
             )
             self.cursor = self.conn.cursor()
-            with lock:
-                self.create_database()
-                self.create_domain_table()
+            self.create_database()
+            self.create_domain_table()
             logger.info("已经成功连接到mysql服务器")
         except mysql.connector.Error as error:
             logger.error(f"Error connecting to MySQL database: {error}")

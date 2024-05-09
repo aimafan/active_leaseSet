@@ -1,0 +1,3 @@
+confluent-kafka==2.4.0
+lock==2018.3.25.2110
+mysql-connector-python==8.4.0

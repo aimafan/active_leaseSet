@@ -1,9 +1,9 @@
 from confluent_kafka import Consumer, KafkaError
 from confluent_kafka.admin import AdminClient, NewTopic
-from push_mysql import DarknetDB
+from active_leaseSet.middle.push_mysql import DarknetDB
 import time
 from active_leaseSet.myutils.logger import logger
-from lock import lock
+# from lock import lock
 
 
 def hash2address(base32_hash):
@@ -47,8 +47,8 @@ class KafkaConsumerHandler:
             "domain": fields[1],
         }
         domain_dic["domain"] = hash2address(domain_dic["domain"])
-        with lock:
-            self.mysql_db.add_leaseset(domain_dic)
+        # with lock:
+        self.mysql_db.add_domain(domain_dic)
 
     def consume(self):
         try:

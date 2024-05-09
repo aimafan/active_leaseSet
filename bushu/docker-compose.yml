@@ -12,11 +12,13 @@ services:
       mode: replicated
       replicas: 1
     privileged: true
+    entrypoint: ["/app/build/i2pd"]
+    command: ["--floodfill"]
 
 
   zookeeper:
     image: wurstmeister/zookeeper:latest
-    container_name: zookeeper
+    container_name: zookeeper_leaseset
     environment:
       ZOO_MY_ID: 1
       ZOO_PORT: 2181
@@ -27,7 +29,7 @@ services:
 
   kafka:
     image: wurstmeister/kafka:latest
-    container_name: kafka
+    container_name: kafka_leaseset
     environment:
       KAFKA_ADVERTISED_HOST_NAME: 172.89.0.2
       KAFKA_LISTENERS: PLAINTEXT://:9092
@@ -38,22 +40,36 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_DELETE_TOPIC_ENABLE: "true"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       kafka-network:
         ipv4_address: 172.89.0.2
+
   mysql:
     image: mysql:latest
-    container_name: mysql
+    container_name: mysql_leaseset
     environment:
       MYSQL_ROOT_PASSWORD: darknet
       MYSQL_DATABASE: Dark
+      MYSQL_DEFAULT_AUTHENTICATION_PLUGIN: mysql_native_password
     ports:
       - "3306:3306"
     networks:
       kafka-network:
         ipv4_address: 172.89.0.5
+
+  backend_leaseset:
+    image: chongrufan/backend_leaseset:v1
+    container_name: backend_leaseset
+    networks:
+      kafka-network:
+        ipv4_address: 172.89.0.6
+    volumes:
+      - /root/mycode/active_leaseSet/bushu/config:/app/config
+    tty: true
+    stdin_open: true
+    deploy:
+      mode: replicated
+      replicas: 1
 
 networks:
   kafka-network:

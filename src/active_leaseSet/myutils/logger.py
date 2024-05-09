@@ -12,7 +12,6 @@ def setup_logging(filename="defult.log"):
 
     # 创建一个handler，用于写入日志文件
     log_file = os.path.join(project_path, "logs", filename)
-    print(log_file)
 
     # 用于写入日志文件，当文件大小超过500MB时进行滚动
     file_handler = logging.handlers.RotatingFileHandler(log_file,
